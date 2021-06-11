@@ -105,8 +105,9 @@
                     %                 elseif slipFR(:,odomUptCount) == 0.0
                     %                     disp('Rover wheels are not moving!')
                 elseif slipFR(:,odomUptCount) ==-1
-                    disp('Rover throttled up! 100% slippage')
+%                     disp('Rover throttled up! 100% slippage')
                 elseif slipFR(:,odomUptCount) ==1
-                    disp('Rover throttled down! 100% slippage')
+%                     disp('Rover throttled down! 100% slippage')
                 end
-                
+
+               

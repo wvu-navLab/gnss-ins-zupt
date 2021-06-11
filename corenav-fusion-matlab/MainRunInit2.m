@@ -1,10 +1,11 @@
 %% updates
 odomUpdate=true;
 zeroUpdate=true;
-nonHolo=false;
+nonHolo=true;
 backProp=true;
 gpsResults=true;
-gaussianProcess=true;
+gaussianProcess=false;
+gtsamUpdate=false;
 %% 
 L=length(tTimu);
 ba=zeros(3,L);
@@ -91,7 +92,8 @@ flat= 1/298.257223563; % WGS84 Earth flattening
 ecc = 0.0818191909425; % WGS84 Eccentricity
 TimeIMU(1)=0;
 TimeODOM=(tTodom-tTodom(1));
-
+TimeGTSAM=gtsam.time-gtsam.time(1);
+TimeGPS=gpsECEF.time-gpsECEF.time(1);
 H11=zeros(1,3);
 H12=zeros(1,3);
 H21=zeros(1,3);
@@ -105,6 +107,7 @@ z21=zeros(1,1);
 z31=zeros(1,1);
 z41=zeros(1,1);
 kk=2;
+jj=2;
 k=1;
 counter=2;
 bb(1)=1;

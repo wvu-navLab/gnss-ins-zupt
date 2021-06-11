@@ -150,8 +150,8 @@ xlabel('time(s)')
 legend('show');
 
 
-LimitSlipVal(1,:)=(find(dPxSlip<2.00));
-thresholdSlip=LimitSlipVal(1,end);
+% LimitSlipVal(1,:)=(find(dPxSlip<2.00));
+% thresholdSlip=LimitSlipVal(1,end);
 
 figure;
 if gpsResults()
@@ -160,11 +160,11 @@ end
     hold on
 if odomUpdate()
 hold on; 
-if (length(dPxSlip(1:thresholdSlip))==length(timeCountSimu(1:thresholdSlip-1)))
-    plot(timeCountSimu(1:endthresholdSlip-1)-tTimu(1),dPxSlip(1:thresholdSlip),'DisplayName', 'PredictedError');
-else
-    plot(timeCountSimu(1:thresholdSlip)-tTimu(1),dPxSlip(1:thresholdSlip),'DisplayName', 'PredictedError');
-end
+% if (length(dPxSlip(1:thresholdSlip))==length(timeCountSimu(1:thresholdSlip-1)))
+%     plot(timeCountSimu(1:endthresholdSlip-1)-tTimu(1),dPxSlip(1:thresholdSlip),'DisplayName', 'PredictedError');
+% else
+%     plot(timeCountSimu(1:thresholdSlip)-tTimu(1),dPxSlip(1:thresholdSlip),'DisplayName', 'PredictedError');
+% end
 end
 hold on;plot(tTimu-tTimu(1),dPx,'DisplayName','FilterEstimatedError')
 ylabel('{err}(m)')

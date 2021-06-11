@@ -19,7 +19,7 @@ z2_odom=(headRate)*(1-s_or)-((z11/dt_odom)/T_r)*s_delta_or;
 z1_ins=z11; %Checked
 z2_ins=((insAtt_old(3)-heading_old))*z21;
 if abs(z2_ins) > 0.5
-    disp('Heading spike! errorCorrected')
+%     disp('Heading spike! errorCorrected')
     z2_ins=0;
 end
 z3_ins=z31; %Checked
