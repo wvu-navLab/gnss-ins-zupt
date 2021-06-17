@@ -1,0 +1,18 @@
+# Editor backup files:
+*~
+.*.swp
+
+# Python compiled byte-code
+*.pyc
+
+# build directories
+build*/
+
+# OS/X File system droppings
+*.DS_Store
+
+# Sublime Test temp files
+._*
+
+# Coverage file results
+gcovr

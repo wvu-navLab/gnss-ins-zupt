@@ -1,0 +1,3 @@
+[Bb]uild/*
+test_runs/*
+*.o

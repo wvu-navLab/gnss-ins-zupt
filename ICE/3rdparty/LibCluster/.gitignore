@@ -1,0 +1,5 @@
+# ignore list for git status etc.
+*.mex*
+*.user
+build/*
+lib/
