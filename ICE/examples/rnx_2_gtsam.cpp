@@ -88,8 +88,8 @@ int main(int argc, char *argv[])
                 "Broadcast nav file to read.")
                 ("iono", po::value<string>(&iono_file)->default_value(""),
                 "IonoMap file to read.")
-                ("break_window",  po::value<int>(&break_window)->default_value(100), "Size of window (in samples) to check for cycle-slips")
-                ("break_thresh",  po::value<double>(&break_thresh)->default_value(6.0), "deviation magnitude to classify as phase break")
+                ("break_window",  po::value<int>(&break_window)->default_value(1500), "Size of window (in samples) to check for cycle-slips")
+                ("break_thresh",  po::value<double>(&break_thresh)->default_value(5.5), "deviation magnitude to classify as phase break")
                 ("usingP1", "Are you using C1 instead of P1?")
                 ("dec", po::value<int>(&dec_int)->default_value(0),
                 "decimate input obs file");
@@ -133,7 +133,9 @@ int main(int argc, char *argv[])
         // std::cout << "After reading sp3 file" << endl;
         // BELL station nominal position
         // Nom. pos. for the greenhouse dataset.
-        Position nominalPos(859153.0167,-4836303.7245,4055378.4991);// nominal pose for t10
+        //Position nominalPos(859154.0695, -4836304.2164, 4055377.5475);// nominal pose for t9
+        // Position nominalPos(859153.0167,-4836303.7245,4055378.4991);// nominal pose for t10
+        Position nominalPos(859156.4189, -4836305.5491, 4055375.2899);// nominal pose for t11
         // Position nominalPos(856509.2570,-4843016.7781, 4047938.0419); // outside Maria
         // Position nominalPos(856651.3014 -4843072.0103 4047854.2071); //greenhouse Maria
         // Nom. pos. for the dec12 dataset.

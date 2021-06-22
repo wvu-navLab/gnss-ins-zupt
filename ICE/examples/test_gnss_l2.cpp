@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
         vector<mixtureComponents> globalMixtureModel;
         int num_zupts = 0;
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/t10/l2noisyzupt10.xyz";
+        string out_file = "/home/navlab-shounak/Desktop/Fusion/t10/l2t11.xyz";
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
         po::notify(vm);
 
         // gnssFile = "/home/navlab-shounak/Desktop/Maria Files/maria_outside.gtsam";
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/t10/noisydata10.gtsam";
+        gnssFile = "/home/navlab-shounak/Desktop/Fusion/t10/out11.gtsam";
         // ConfDataReader confReader;
         // confReader.open(confFile);
         //
@@ -261,19 +261,19 @@ int main(int argc, char* argv[])
                 //---------------------------------------------------------------------
                 // add between factor here
 
-                if (i != startEpoch){
-                    int prevKey = get<1>(data[i-1]);
-                    double prevgnssTime = get<0>(data[i-1]);
-
-                    for (int j = 0; j < zupt_tags.size()-1; j++){
-                        if ((std::abs(zupt_tags[j] - prevgnssTime) < 0.01) && (std::abs(zupt_tags[j+1] - gnssTime) < 0.01)){
-                            graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, zuptNoise));
-                            ++factor_count;
-                            num_zupts = num_zupts+1;
-                            cout << " Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
-                        }
-                    }
-                }
+                // if (i != startEpoch){
+                //     int prevKey = get<1>(data[i-1]);
+                //     double prevgnssTime = get<0>(data[i-1]);
+                //
+                //     for (int j = 0; j < zupt_tags.size()-1; j++){
+                //         if ((std::abs(zupt_tags[j] - prevgnssTime) < 0.01) && (std::abs(zupt_tags[j+1] - gnssTime) < 0.01)){
+                //             graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, zuptNoise));
+                //             ++factor_count;
+                //             num_zupts = num_zupts+1;
+                //             cout << " Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
+                //         }
+                //     }
+                // }
 
                 //---------------------------------------------------------------------
 
