@@ -1,20 +1,20 @@
-function [ norml2noisy0, norml2noisyzupt0] = plotl2(n)
-% ice_start = 550;
+% function [ norml2noisy0, norml2noisyzupt0] = plotl2(n)
+l2_start = 550;
 l2noisy_start = 552;
 l2noisyzupt_start = 552;
 rtk_start = 454;
 
-% fid = fopen('ice.xyz','r');
-% ECEF = textscan(fid, '%f %f %f %f','delimiter',' ');
-% fclose(fid);
-% 
-% time = ECEF{1}(ice_start:end);
-% X = ECEF{2}(ice_start:end);
-% Y = ECEF{3}(ice_start:end);
-% Z = ECEF{4}(ice_start:end);
+fid = fopen('l2.xyz','r');
+ECEF = textscan(fid, '%f %f %f %f','delimiter',' ');
+fclose(fid);
+
+time = ECEF{1}(l2_start:end);
+X = ECEF{2}(l2_start:end);
+Y = ECEF{3}(l2_start:end);
+Z = ECEF{4}(l2_start:end);
 
 
-fid2 = fopen(strcat('l2noisy', int2str(n),'.xyz'),'r');
+fid2 = fopen(strcat('l2noisy3.xyz'),'r');
 ECEFnoisy = textscan(fid2, '%f %f %f %f','delimiter',' ');
 fclose(fid2);
 
@@ -24,7 +24,7 @@ Y2 = ECEFnoisy{3}(l2noisy_start:end);
 Z2 = ECEFnoisy{4}(l2noisy_start:end);
 
 
-fid3 = fopen(strcat('l2noisyzupt', int2str(n),'.xyz'),'r');
+fid3 = fopen(strcat('l2noisyzupt3.xyz'),'r');
 ECEFnoisyzupt = textscan(fid3, '%f %f %f %f','delimiter',' ');
 fclose(fid3);
 
@@ -34,20 +34,20 @@ Y3 = ECEFnoisyzupt{3}(l2noisyzupt_start:end);
 Z3 = ECEFnoisyzupt{4}(l2noisyzupt_start:end);
 
 
-% ecef = [X,Y,Z];
+ecef = [X,Y,Z];
 ecefnoisy = [X2,Y2,Z2];
 ecefnoisyzupt = [X3,Y3,Z3];
 
 
 origin = [859153.0167; -4836303.7245; 4055378.4991];
 
-% enu = zeros(length(X),3);
+enu = zeros(length(X),3);
 enunoisy = zeros(length(X2),3);
 enunoisyzupt = zeros(length(X3),3);
 
-% for i = 1:length(X)
-%     enu(i, :) = xyz2enu(ecef(i,:), origin);
-% end
+for i = 1:length(X)
+    enu(i, :) = xyz2enu(ecef(i,:), origin);
+end
 
 for i = 1:length(X2)
     enunoisy(i, :) = xyz2enu(ecefnoisy(i,:), origin);
@@ -77,30 +77,30 @@ rtkZ = ENUGPS(3,rtk_start:end)';
 % corenavtime = corenavtime(1:end-3);
 
 % interpolating all to rtk time to  calculate errors
-% solice = interp1(time,enu,gpsTime,'linear');
+soll2 = interp1(time,enu,gpsTime,'linear');
 soll2noisy= interp1(time2,enunoisy,gpsTime,'linear');
 soll2noisyzupt= interp1(time3,enunoisyzupt,gpsTime,'linear');
 
 solrtk = [rtkX, rtkY, rtkZ];
 
-% errice = solrtk - solice;
+errl2 = solrtk - soll2;
 errl2noisy = solrtk - soll2noisy;
 errl2noisyzupt = solrtk - soll2noisyzupt;
 
-% normice = sqrt(errice(:,1).^2 + errice(:,2).^2 + errice(:,3).^2); 
+norml2 = sqrt(errl2(:,1).^2 + errl2(:,2).^2 + errl2(:,3).^2); 
 norml2noisy = sqrt(errl2noisy(:,1).^2 + errl2noisy(:,2).^2 + errl2noisy(:,3).^2);
 norml2noisyzupt = sqrt(errl2noisyzupt(:,1).^2 + errl2noisyzupt(:,2).^2 + errl2noisyzupt(:,3).^2);
 
 norml2noisy0 = norml2noisy(~isnan(norml2noisy));
 norml2noisyzupt0 = norml2noisyzupt(~isnan(norml2noisyzupt));
 
-% maxice = max(normice);
-maxl2noisy = max(norml2noisy0);
-maxl2noisyzupt = max(norml2noisyzupt0);
+maxl2 = max(norml2)
+maxl2noisy = max(norml2noisy0)
+maxl2noisyzupt = max(norml2noisyzupt0)
 
-% rmsice = sqrt(sum(normice.^2)/length(normice));
-rmsl2noisy = sqrt(sum(norml2noisy0.^2)/length(norml2noisy0));
-rmsl2noisyzupt = sqrt(sum(norml2noisyzupt0.^2)/length(norml2noisyzupt0));
+rmsl2 = sqrt(sum(norml2.^2)/length(norml2))
+rmsl2noisy = sqrt(sum(norml2noisy0.^2)/length(norml2noisy0))
+rmsl2noisyzupt = sqrt(sum(norml2noisyzupt0.^2)/length(norml2noisyzupt0))
 
 % 
 % figure();
@@ -139,19 +139,19 @@ rmsl2noisyzupt = sqrt(sum(norml2noisyzupt0.^2)/length(norml2noisyzupt0));
 % title('2D trajectory (m) - t9 ','Interpreter','Latex')
 % lgd2.FontSize = 13;
 % 
-% figure();
-% plot3(rtkX,rtkY,rtkZ,'r',enunoisy(:,1),enunoisy(:,2),enunoisy(:,3),'b--',enunoisyzupt(:,1),enunoisyzupt(:,2),enunoisyzupt(:,3),'g.-','LineWidth',1.5,'MarkerSize',3)
-% set(gca,'TickLabelInterpreter','latex');
-% ax = gca;
-% ax.FontSize = 13;
-% lgd2 = legend('RTKlib','l2-noisy','l2-noisyzupt','Interpreter','Latex');
-% xlabel('East','Interpreter','Latex');
-% ylabel('North','Interpreter','Latex');
-% zlabel('Up','Interpreter','Latex');
-% title('3D trajectory - t9 ','Interpreter','Latex')
-% lgd2.FontSize = 13;
+figure();
+plot3(rtkX,rtkY,rtkZ,'r',enu(:,1),enu(:,2),enu(:,3),'k',enunoisy(:,1),enunoisy(:,2),enunoisy(:,3),'b--',enunoisyzupt(:,1),enunoisyzupt(:,2),enunoisyzupt(:,3),'g.-','LineWidth',1.5,'MarkerSize',3)
+set(gca,'TickLabelInterpreter','latex');
+ax = gca;
+ax.FontSize = 13;
+lgd2 = legend('RTKlib','l2','l2-noisy','l2-noisyzupt','Interpreter','Latex');
+xlabel('East','Interpreter','Latex');
+ylabel('North','Interpreter','Latex');
+zlabel('Up','Interpreter','Latex');
+title('3D trajectory - t10 ','Interpreter','Latex')
+lgd2.FontSize = 13;
 
-end
+% end
 
 % rearVelTime = [tTodom, rearLeftVel(1:end-1)];
 % 

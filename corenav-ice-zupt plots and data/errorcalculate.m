@@ -1,5 +1,5 @@
 
-fid = fopen('out.gtsam','r');
+fid = fopen('out10.gtsam','r');
 ECEF = textscan(fid, '%d %.12f %d %s %d %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f','delimiter',' ');
 fclose(fid);
 
@@ -23,12 +23,15 @@ for i = 1: length(elv)
     elv(i) = asind(enuSat(i,3)/norm(enuSat(i,:)));
 end
 
-multipath_noise = zeros(length(satX),10);
+range_noise = zeros(length(satX),1);
+phase_noise = zeros(length(satX),1);
+
 c = 299792458; 
 L_chip = 1.023e-6*c;
 
-for k = 1:10
-    for j = 1:length(satX)
+% for k = 1:10
+for j = 1:length(satX)
+    if rand >= 0.9
         s.N = 1;
         s.elDeg = elv(j);
         s.view = false;
@@ -37,55 +40,47 @@ for k = 1:10
     %   [param.etadB, param.Delta_theta, param.Delta_tau];
         %gnss rums eq 25-28
         delta_tau = param.Delta_tau;
+        delta_theta = param.Delta_theta;
         delta_s = delta_tau*L_chip;
         beta = (-1)*2*pi*delta_s/0.1905;
         d = 0.6;
-        multipath_noise(j,k) = 1.023e-6*c*errormodel(0.5,beta,delta_tau,d);
+        range_noise(j) = 1.023e-6*c*errormodel(0.5,beta,delta_tau,d);
+        phase_noise(j) = delta_theta*0.1905/(2*pi);
     end
 end
+% end
 
-for k = 1:10
+% for k = 1:10
  
-    ECEFcopy = ECEF;
-    
-    for j = 1:length(satX)
-        ECEFcopy{6}(j) = ECEFcopy{6}(j) + multipath_noise(j,k);
-    end
+ECEFcopy = ECEF;
 
-    data = {};
-    for i = 1:length(satX)
-        for j  = 1:20
-            if j == 4
-                data{i,j} = ECEFcopy{j}{i};
-            else
-                data{i,j} = ECEFcopy{j}(i);
-            end
+for j = 1:length(satX)
+    ECEFcopy{6}(j) = ECEFcopy{6}(j) + range_noise(j);
+    ECEFcopy{7}(j) = ECEFcopy{7}(j) + phase_noise(j);
+end
+
+data = {};
+for i = 1:length(satX)
+    for j  = 1:20
+        if j == 4
+            data{i,j} = ECEFcopy{j}{i};
+        else
+            data{i,j} = ECEFcopy{j}(i);
         end
     end
-
-
-    fileID = fopen(strcat('noisydata', int2str(k),'.gtsam'),'w');
-    formatSpec = '%d %.12f %d %s %d %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f\n';
-    [nrows,ncols] = size(data);
-    for row = 1:nrows
-        fprintf(fileID,formatSpec,data{row,:});
-    end
-    fclose(fileID);
-  
-    
 end
 
-% figure();
-% subplot(2,2,1)
-% histogram(multipath_noise(:,1))
-% subplot(2,2,2)
-% histogram(multipath_noise(:,2))
-% subplot(2,2,3)
-% histogram(multipath_noise(:,3))
-% subplot(2,2,4)
-% histogram(multipath_noise(:,4))
-% 
-% diference = multipath_noise(:,1) - multipath_noise(:,8);
+fileID = fopen('noisydata_sparse.gtsam','w');
+formatSpec = '%d %.12f %d %s %d %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f %.12f\n';
+[nrows,ncols] = size(data);
+for row = 1:nrows
+    fprintf(fileID,formatSpec,data{row,:});
+end
+fclose(fileID);
+  
+    
+% end
+
 
 
 

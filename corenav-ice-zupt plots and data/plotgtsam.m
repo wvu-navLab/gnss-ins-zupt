@@ -1,10 +1,23 @@
 
-function plotgtsam(n)
-
+% function [normicenoisy0, normicenoisyzupt0] =  plotgtsam(n)
+n = 3;
 ice_start = 550;
-icenoisy_start = 505;
-icenoisyzupt_start = 505;
-corenav_start = 2273;
+if n ==1
+    icenoisy_start = 512;
+    icenoisyzupt_start = 512;
+elseif n ==2 
+    icenoisy_start = 508;
+    icenoisyzupt_start = 504;
+elseif n ==3 
+    icenoisy_start = 495;
+    icenoisyzupt_start = 495;
+elseif n ==4 
+    icenoisy_start = 499;
+    icenoisyzupt_start = 499;
+elseif n ==5 
+    icenoisy_start = 506;
+    icenoisyzupt_start = 506;
+end
 rtk_start = 454;
 
 fid = fopen('ice.xyz','r');
@@ -17,7 +30,7 @@ Y = ECEF{3}(ice_start:end);
 Z = ECEF{4}(ice_start:end);
 
 
-fid2 = fopen(strcat('icenoisy', int2str(n),'.xyz'),'r');
+fid2 = fopen('icenoisy3.xyz','r');
 ECEFnoisy = textscan(fid2, '%f %f %f %f','delimiter',' ');
 fclose(fid2);
 
@@ -27,7 +40,7 @@ Y2 = ECEFnoisy{3}(icenoisy_start:end);
 Z2 = ECEFnoisy{4}(icenoisy_start:end);
 
 
-fid3 = fopen(strcat('icenoisyzupt', int2str(n),'.xyz'),'r');
+fid3 = fopen('icenoisyzupt3.xyz','r');
 ECEFnoisyzupt = textscan(fid3, '%f %f %f %f','delimiter',' ');
 fclose(fid3);
 
@@ -69,21 +82,20 @@ rtkY = ENUGPS(2,rtk_start:end)';
 rtkZ = ENUGPS(3,rtk_start:end)';
 
 
-corenav_time = double(timeSecCN(corenav_start:end)) + 1e-9*double(timeNsecCN(corenav_start:end));
+% corenav_time = double(timeSecCN(corenav_start:end)) + 1e-9*double(timeNsecCN(corenav_start:end));
+% 
+% timediff = gpsTime(1) - corenav_time(1);
+% corenavtime = corenav_time + timediff*(ones(length(corenav_time),1));
 
-timediff = gpsTime(1) - corenav_time(1);
-corenavtime = corenav_time + timediff*(ones(length(corenav_time),1));
-
-cnX = (-1)*Pos_yCN(corenav_start:end);
-cnY = Pos_xCN(corenav_start:end);
-cnZ = Pos_zCN(corenav_start:end-3);
-corenavtime = corenavtime(1:end-3);
+% cnX = (-1)*Pos_yCN(corenav_start:end);
+% cnY = Pos_xCN(corenav_start:end);
+% cnZ = Pos_zCN(corenav_start:end-3);
+% corenavtime = corenavtime(1:end-3);
 
 % interpolating all to rtk time to  calculate errors
 solice = interp1(time,enu,gpsTime,'linear');
 solicenoisy= interp1(time2,enunoisy,gpsTime,'linear');
 solicenoisyzupt= interp1(time3,enunoisyzupt,gpsTime,'linear');
-solcn = interp1(corenavtime,[cnX,cnY,cnZ],gpsTime,'linear');
 
 
 solrtk = [rtkX, rtkY, rtkZ];
@@ -91,12 +103,10 @@ solrtk = [rtkX, rtkY, rtkZ];
 errice = solrtk - solice;
 erricenoisy = solrtk - solicenoisy;
 erricenoisyzupt = solrtk - solicenoisyzupt;
-errcn = solrtk - solcn;
 
 normice = sqrt(errice(:,1).^2 + errice(:,2).^2 + errice(:,3).^2); 
 normicenoisy = sqrt(erricenoisy(:,1).^2 + erricenoisy(:,2).^2 + erricenoisy(:,3).^2);
 normicenoisyzupt = sqrt(erricenoisyzupt(:,1).^2 + erricenoisyzupt(:,2).^2 + erricenoisyzupt(:,3).^2);
-normcn = sqrt(errcn(:,1).^2 + errcn(:,2).^2 + errcn(:,3).^2);
 
 normicenoisy0 = normicenoisy(~isnan(normicenoisy));
 normicenoisyzupt0 = normicenoisyzupt(~isnan(normicenoisyzupt));
@@ -104,12 +114,11 @@ normicenoisyzupt0 = normicenoisyzupt(~isnan(normicenoisyzupt));
 maxice = max(normice)
 maxicenoisy = max(normicenoisy0)
 maxicenoisyzupt = max(normicenoisyzupt0)
-maxcn = max(normcn);
 
 rmsice = sqrt(sum(normice.^2)/length(normice))
 rmsicenoisy = sqrt(sum(normicenoisy0.^2)/length(normicenoisy0))
 rmsicenoisyzupt = sqrt(sum(normicenoisyzupt0.^2)/length(normicenoisyzupt0))
-rmscn = sqrt(sum(normcn.^2)/length(normcn));
+
 % 
 % figure();
 % err = [normice',normicenoisy0',normicenoisyzupt0'];
@@ -135,31 +144,31 @@ rmscn = sqrt(sum(normcn.^2)/length(normcn));
 % %title('3D Norm Error (m) - t9 ','Interpreter','Latex')
 
 
-
+% 
 % figure();
-% plot(rtkX,rtkY,'r',enu(:,1),enu(:,2),'y',enunoisy(:,1), enunoisy(:,2),'b--',enunoisyzupt(:,1), enunoisyzupt(:,2),'g.-','LineWidth',1.5,'MarkerSize',3)
+% plot(rtkX,rtkY,'r',enunoisy(:,1), enunoisy(:,2),'b--',enunoisyzupt(:,1), enunoisyzupt(:,2),'g.-','LineWidth',1.5,'MarkerSize',3)
 % set(gca,'TickLabelInterpreter','latex');
 % ax = gca;
 % ax.FontSize = 13;
-% lgd2 = legend('RTKlib','ICE','ICE-noisy','ICE-noisyzupt','Interpreter','Latex');
+% lgd2 = legend('RTKlib','ICE-noisy','ICE-noisyzupt','Interpreter','Latex');
 % xlabel('East (m)','Interpreter','Latex');
 % ylabel('North (m)','Interpreter','Latex');
 % title('2D trajectory (m) - t9 ','Interpreter','Latex')
 % lgd2.FontSize = 13;
 % 
-% figure();
-% plot3(rtkX,rtkY,rtkZ,'r',enu(:,1),enu(:,2),enu(:,3),'y',enunoisy(:,1),enunoisy(:,2),enunoisy(:,3),'b--',enunoisyzupt(:,1),enunoisyzupt(:,2),enunoisyzupt(:,3),'g.-','LineWidth',1.5,'MarkerSize',3)
-% set(gca,'TickLabelInterpreter','latex');
-% ax = gca;
-% ax.FontSize = 13;
-% lgd2 = legend('RTKlib','ICE','ICE-noisy','ICE-noisyzupt','Interpreter','Latex');
-% xlabel('East','Interpreter','Latex');
-% ylabel('North','Interpreter','Latex');
-% zlabel('Up','Interpreter','Latex');
-% title('3D trajectory - t9 ','Interpreter','Latex')
-% lgd2.FontSize = 13;
+figure();
+plot3(rtkX,rtkY,rtkZ,'r',enu(:,1),enu(:,2),enu(:,3),'k',enunoisy(:,1),enunoisy(:,2),enunoisy(:,3),'b--',enunoisyzupt(:,1),enunoisyzupt(:,2),enunoisyzupt(:,3),'g.-','LineWidth',1.5,'MarkerSize',3)
+set(gca,'TickLabelInterpreter','latex');
+ax = gca;
+ax.FontSize = 13;
+lgd2 = legend('RTKlib','ICE','ICE-noisy','ICE-noisyzupt','Interpreter','Latex');
+xlabel('East','Interpreter','Latex');
+ylabel('North','Interpreter','Latex');
+zlabel('Up','Interpreter','Latex');
+title('3D trajectory - t10 ','Interpreter','Latex')
+lgd2.FontSize = 13;
 
-end
+% end
 
 % rearVelTime = [tTodom, rearLeftVel(1:end-1)];
 % 

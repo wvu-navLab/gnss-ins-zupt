@@ -1,6 +1,6 @@
 function plotcomparisonzupt(n)
 
-icenoisy_start = 505;
+icenoisy_start = 552;
 l2noisy_start = 552;
 rtk_start = 454;
 
@@ -64,8 +64,8 @@ norml2noisy = sqrt(errl2noisyzupt(:,1).^2 + errl2noisyzupt(:,2).^2 + errl2noisyz
 normicenoisy0 = normicenoisy(~isnan(normicenoisy));
 norml2noisy0 = norml2noisy(~isnan(norml2noisy));
 
-maxicenoisy = max(normicenoisy0);
-maxl2noisy = max(norml2noisy0);
+maxicenoisy = max(normicenoisy0)
+maxl2noisy = max(norml2noisy0)
 
 rmsicenoisy = sqrt(sum(normicenoisy0.^2)/length(normicenoisy0))
 rmsl2noisy = sqrt(sum(norml2noisy0.^2)/length(norml2noisy0))
