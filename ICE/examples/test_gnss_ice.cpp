@@ -92,32 +92,25 @@ int main(int argc, char* argv[])
         string res_out_str = "outliers.residuals";
         ofstream res_out_os(res_out_str);
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/t10/icet11.xyz";
-        ofstream out_os(out_file);
-
-        // string sat_file = "satloc.xyz";
-        // ofstream sat_os(sat_file);
+        // string mean_str = "means.txt";
+        // ofstream mean_os(mean_str);
         //
-        // sat_os.precision(12);
+        // string cov_str = "covs.txt";
+        // ofstream cov_os(cov_str);
+
+        string out_file = "/home/navlab-shounak/Desktop/Fusion/clean_results_t11/ice_t11_zupt_w500_Fmod.xyz";
+        ofstream out_os(out_file);
 
         cout.precision(12);
 
         out_os.precision(12);
 
         po::options_description desc("Available options");
-        // desc.add_options()
-        //         ("help,h", "Print help message")
-        //         ("confFile,c", po::value<string>(&confFile)->default_value(""),
-        //         "Input config file" );
-                // ("dataFile,d", po::value<string>(&gnssFile)->default_value(""),
-                // "gnss data file" );
-
         po::variables_map vm;
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        // gnssFile = "/home/navlab-shounak/Desktop/Maria Files/maria_outside.gtsam";
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/t10/out11.gtsam";
+        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t11/out11sat4F.gtsam";
         // ConfDataReader confReader;
         // confReader.open(confFile);
         //
@@ -143,31 +136,69 @@ int main(int argc, char* argv[])
         //read the zupt times from a file (a set?, they can use the method count())
 
         // open file
-        ifstream inputFile("zupt_Tags.txt");
-        vector<double> zupt_tags;
-
-        // test file open
-        if (inputFile) {
-            double val;
-
-            // read the elements in the file into a vector
-            while ( inputFile >> val ) {
-                zupt_tags.push_back(val);
-            }
-        }
+        // ifstream inputFile("zupt_Tags_t11.txt");
+        // vector<double> zupt_tags;
+        //
+        // // test file open
+        // if (inputFile) {
+        //     double val;
+        //
+        //     // read the elements in the file into a vector
+        //     while ( inputFile >> val ) {
+        //         zupt_tags.push_back(val);
+        //     }
+        // }
         // close the file
 
         //---------------------------------------------------------------------
 
+        // read the ecef displacements from CoreNav
+        std::vector<std::vector<double> > ecefCN;
+        std::string line;
+        double value2;
+
+        // read in matrix
+        std::ifstream file2("ecefGtsamt9.txt");
+        while(std::getline(file2, line)) {
+                std::vector<double> row;
+                std::istringstream iss(line);
+                while(iss >> value2){
+                        row.push_back(value2);
+                }
+                ecefCN.push_back(row);
+        }
+
+        // open file
+        // ifstream inputFile("ecefGtsamt9.txt");
+        // vector<double> x, y, z;
+        //
+        // // test file open
+        // if (inputFile) {
+        //     double val1, val2, val3;
+        //
+        //     // read the elements in the file into a vector
+        //     while ( inputFile >> val1 >> val2 >> val3 ) {
+        //         x.push_back(val1);
+        //         y.push_back(val2);
+        //         z.push_back(val3);
+        //     }
+        // }
+        // close the file
+
+        //----------------------------------------------------------------------
         //outside Maria nominal ECEF values
         // xn = 856509.2570;
         // yn = -4843016.7781;
         // zn = 4047938.0419;
 
-        //t10 nominal ECEF values
-        xn = 859153.0167;
-        yn = -4836303.7245;
-        zn = 4055378.4991;
+        //t9 nominal ECEF values
+        xn = 859154.0695;
+        yn = -4836304.2164;
+        zn = 4055377.5475;
+
+        // 859154.0695, -4836304.2164, 4055377.5475 - t9
+        // 859153.0167, -4836303.7245, 4055378.4991 - t10
+        // 859156.4189, -4836305.5491, 4055375.2899 - t11
 
 
         printENU = false;
@@ -199,12 +230,11 @@ int main(int argc, char* argv[])
         ISAM2 isam(parameters);
 
         double output_time = 0.0;
-        double rangeWeight = 2.5;
-        double phaseWeight = 0.25;
+        double rangeWeight = 0.5; //2.5;
+        double phaseWeight = 0.05; //0.25
 
         ifstream file(gnssFile.c_str());
         string value;
-
 
         nonBiasStates prior_nonBias = (gtsam::Vector(5) << 0.0, 0.0, 0.0, 0.0, 0.0).finished();
 
@@ -215,6 +245,12 @@ int main(int argc, char* argv[])
         // zupt noise model
 
         noiseModel::Diagonal::shared_ptr zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-5, 1e-5, 1e-5, 1e3, 1e-3).finished());
+
+        noiseModel::Diagonal::shared_ptr corenavNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-5, 1e-5, 1e-5, 1e3, 1e-3).finished());
+
+        // non-zupt noise model
+
+        noiseModel::Diagonal::shared_ptr non_zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 4.0, 4.0, 4.0, 1e3, 1e-3).finished());
 
         phaseBias bias_state(Z_1x1);
         gnssStateVector phase_arc(Z_34x1);
@@ -236,7 +272,7 @@ int main(int argc, char* argv[])
 
         NonlinearFactorGraph *graph = new NonlinearFactorGraph();
 
-        residuals.setZero(1000,2);
+        residuals.setZero(500,2);
 
         // init. mixture model.
         // Init this from file later
@@ -250,7 +286,9 @@ int main(int argc, char* argv[])
 
         int lastStep = get<0>(data.back());
 
-        std::vector<int> num_obs (1000, 0);
+        std::vector<int> num_obs (500, 0);
+
+        bool is_zupt = false;
 
         for(unsigned int i = startEpoch; i < data.size(); i++ ) {
 
@@ -299,20 +337,40 @@ int main(int argc, char* argv[])
 
                 //---------------------------------------------------------------------
                 // add between factor here
-
-                // if (i != startEpoch){
-                //     int prevKey = get<1>(data[i-1]);
-                //     double prevgnssTime = get<0>(data[i-1]);
                 //
-                //     for (int j = 0; j < zupt_tags.size()-1; j++){
-                //         if ((std::abs(zupt_tags[j] - prevgnssTime) < 0.01) && (std::abs(zupt_tags[j+1] - gnssTime) < 0.01)){
-                //             graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, zuptNoise));
-                //             ++factor_count;
-                //             num_zupts = num_zupts+1;
-                //             cout << "Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
-                //         }
-                //     }
-                // }
+
+                if (i != startEpoch){
+                    int prevKey = get<1>(data[i-1]);
+                    double prevgnssTime = get<0>(data[i-1]);
+
+                    std::vector<double> ecefcurr = ecefCN[i];
+                    std::vector<double> ecefprev = ecefCN[i-1];
+
+                    double xcurr = ecefcurr[0];
+                    double ycurr = ecefcurr[1];
+                    double zcurr = ecefcurr[2];
+
+                    double xprev = ecefprev[0];
+                    double yprev = ecefprev[1];
+                    double zprev = ecefprev[2];
+
+                    // for (int j = 0; j < zupt_tags.size()-1; j++){
+                    //     if ((std::abs(zupt_tags[j] - prevgnssTime) < 0.01) && (std::abs(zupt_tags[j+1] - gnssTime) < 0.01)){
+                    //         is_zupt = true;
+                    //         graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, zuptNoise));
+                    //         ++factor_count;
+                    //         num_zupts = num_zupts+1;
+                    //         cout << "Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
+                    //     }
+                    // }
+                    // if (is_zupt == false){
+
+                    nonBiasStates corenav_nonBias = (gtsam::Vector(5) << xcurr-xprev, ycurr-yprev, zcurr-zprev, 0.0, 0.0).finished();
+
+                    graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), corenav_nonBias, corenavNoise));
+                    ++factor_count;
+                    // }
+                }
 
                 //---------------------------------------------------------------------
 
@@ -380,7 +438,7 @@ int main(int argc, char* argv[])
                                 if (std::abs(z_r) > 3.0 || std::abs(z_p) > 3.0)
                                 {
                                         ++res_count;
-                                        if (res_count > 999 )
+                                        if (res_count > 499 )
                                         {
                                                 residuals.conservativeResize(residuals.rows()+1, residuals.cols());
 
@@ -453,7 +511,7 @@ int main(int argc, char* argv[])
                         factor_count_vec.clear();
                         factor_count = -1;
 
-                        if (res_count > 1000)
+                        if (res_count > 500)
                         {
 
                                 StickBreak weights;
@@ -478,7 +536,7 @@ int main(int argc, char* argv[])
                                         // cout << mc.get<0>() << " " << mc.get<1>() << " "  <<  mc.get<2>() << "    " << mc.get<3>() <<"     "<< cov(0,0) << " " << cov(0,1) << " " << cov(1,1) <<"     "<<"\n\n" << endl;
                                 }
 
-                                residuals.setZero(1000,2);
+                                residuals.setZero(500,2);
                                 res_count = -1;
 
                         }
@@ -500,12 +558,19 @@ int main(int argc, char* argv[])
 
         // cout << "\n\n\n\n\n\n" << endl;
         // cout << "----------------- Final Incremental Mixture MODEL ----------------" << endl;
-        for (int i=0; i<globalMixtureModel.size(); i++)
-        {
-                mixtureComponents mc = globalMixtureModel[i];
-                auto cov = mc.get<4>();
-                // cout << mc.get<0>() << " " << mc.get<1>() << " "  <<  mc.get<2>() << "    " << mc.get<3>() <<"     "<< cov(0,0) << " " << cov(0,1) << " " << cov(1,1) <<"     "<<"\n\n" << endl;
-        }
+        // for (int i=0; i<globalMixtureModel.size(); i++)
+        // {
+        //         mixtureComponents mc = globalMixtureModel[i];
+        //
+        //         Eigen::MatrixXd cov = mc.get<4>();
+        //         Eigen::RowVectorXd mean = mc.get<3>();
+        //         mean_os << mean(0) << " " << mean(1) << " " << mean(2) << " " << mean(3) << "\n";
+        //         for (int i = 0; i < 2;i++){
+        //           cov_os << cov(i,0) << " " << cov(i,1) << "\n" ;
+        //         }
+        //         // auto cov = mc.get<4>();
+        //         // cout << mc.get<0>() << " " << mc.get<1>() << " "  <<  mc.get<2>() << "    " << mc.get<3>() <<"     "<< cov(0,0) << " " << cov(0,1) << " " << cov(1,1) <<"     "<<"\n\n" << endl;
+        // }
 
         return 0;
 }
