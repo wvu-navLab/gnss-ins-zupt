@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
         // string cov_str = "covs.txt";
         // ofstream cov_os(cov_str);
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/clean_results_t11/ice_t11_zupt_w500_Fmod.xyz";
+        string out_file = "/home/navlab-shounak/Desktop/Fusion/clean_results_t9/ice_t9_w500_FmodCN.xyz";
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t11/out11sat4F.gtsam";
+        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t9/out9sat4F.gtsam";
         // ConfDataReader confReader;
         // confReader.open(confFile);
         //
@@ -157,6 +157,8 @@ int main(int argc, char* argv[])
         std::string line;
         double value2;
 
+        int rowNum = 0;
+
         // read in matrix
         std::ifstream file2("ecefGtsamt9.txt");
         while(std::getline(file2, line)) {
@@ -166,8 +168,10 @@ int main(int argc, char* argv[])
                         row.push_back(value2);
                 }
                 ecefCN.push_back(row);
+                rowNum = rowNum + 1;
         }
 
+        cout << " Number of rows in the ecefGtsamt9.txt file -- " << rowNum << endl;
         // open file
         // ifstream inputFile("ecefGtsamt9.txt");
         // vector<double> x, y, z;
@@ -246,7 +250,7 @@ int main(int argc, char* argv[])
 
         noiseModel::Diagonal::shared_ptr zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-5, 1e-5, 1e-5, 1e3, 1e-3).finished());
 
-        noiseModel::Diagonal::shared_ptr corenavNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-5, 1e-5, 1e-5, 1e3, 1e-3).finished());
+        noiseModel::Diagonal::shared_ptr corenavNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-1, 1e-1, 1e-1, 1e3, 1e-3).finished());
 
         // non-zupt noise model
 
@@ -289,6 +293,8 @@ int main(int argc, char* argv[])
         std::vector<int> num_obs (500, 0);
 
         bool is_zupt = false;
+
+        cout << " The number of epochs in the Gtsam data file -- " << data.size() << endl;
 
         for(unsigned int i = startEpoch; i < data.size(); i++ ) {
 
