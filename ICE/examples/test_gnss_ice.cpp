@@ -344,6 +344,7 @@ int main(int argc, char* argv[])
                 //---------------------------------------------------------------------
                 // add between factor here
                 //
+                cout << " Between factor starting " << endl;
 
                 if (i != startEpoch){
                     int prevKey = get<1>(data[i-1]);
@@ -371,14 +372,22 @@ int main(int argc, char* argv[])
                     // }
                     // if (is_zupt == false){
 
+                    cout << "Displacement -- "  << xcurr-xprev << "  " << ycurr-yprev << "  " << zcurr-zprev << endl;
+
+                    cout << "Time -- " << prevKey << " and " << currKey << endl;
+
+                    if (currKey != prevKey){
+
                     nonBiasStates corenav_nonBias = (gtsam::Vector(5) << xcurr-xprev, ycurr-yprev, zcurr-zprev, 0.0, 0.0).finished();
 
                     graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), corenav_nonBias, corenavNoise));
                     ++factor_count;
                     // }
+                    }
                 }
 
                 //---------------------------------------------------------------------
+                cout << "Between factor finished adding " << endl;
 
                 if (currKey != nextKey && nextKey != 0) {
 

@@ -338,12 +338,14 @@ int main(int argc, char* argv[])
                     // }
                     //
                     // if(is_zupt == false){
+                    if (currKey != prevKey){
 
                     nonBiasStates corenav_nonBias = (gtsam::Vector(5) << xcurr-xprev, ycurr-yprev, zcurr-zprev, 0.0, 0.0).finished();
 
                     graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey),corenav_nonBias, corenavNoise));
                     ++factor_count;
                     // }
+                    }
                 }
 
                 //---------------------------------------------------------------------
