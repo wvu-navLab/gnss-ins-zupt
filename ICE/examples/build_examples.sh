@@ -16,7 +16,11 @@ BDIR="$CURRDIR/build"
 
 g++ test_gnss_ice.cpp -std=c++11 -I"$EDIR" -L"$LDIR" -Wl,-rpath="$LDIR" -I"$IDIR" -ltbb -ltbbmalloc -lboost_system -lboost_program_options -lgpstk -lcluster -Wno-deprecated-declarations -lgtsam -fopenmp -o "$BDIR/test_gnss_ice"
 
+g++ test_gnss_iceCN.cpp -std=c++11 -I"$EDIR" -L"$LDIR" -Wl,-rpath="$LDIR" -I"$IDIR" -ltbb -ltbbmalloc -lboost_system -lboost_program_options -lgpstk -lcluster -Wno-deprecated-declarations -lgtsam -fopenmp -o "$BDIR/test_gnss_iceCN"
+
 g++ test_gnss_l2.cpp -std=c++11 -I"$EDIR" -L"$LDIR" -Wl,-rpath="$LDIR" -I"$IDIR" -ltbb -ltbbmalloc -lboost_system -lboost_program_options -lgpstk -lcluster -Wno-deprecated-declarations -lgtsam -fopenmp -o "$BDIR/test_gnss_l2"
+
+g++ test_gnss_l2CN.cpp -std=c++11 -I"$EDIR" -L"$LDIR" -Wl,-rpath="$LDIR" -I"$IDIR" -ltbb -ltbbmalloc -lboost_system -lboost_program_options -lgpstk -lcluster -Wno-deprecated-declarations -lgtsam -fopenmp -o "$BDIR/test_gnss_l2CN"
 #
 # g++ test_gnss_maxmix.cpp -std=c++11 -I"$EDIR" -L"$LDIR" -Wl,-rpath="$LDIR" -I"$IDIR" -ltbb -ltbbmalloc -lboost_system -lboost_program_options -lgpstk -lcluster -Wno-deprecated-declarations -lgtsam -fopenmp -o "$BDIR/test_gnss_maxmix"
 #

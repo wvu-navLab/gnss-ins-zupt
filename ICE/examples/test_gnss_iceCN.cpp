@@ -1,5 +1,5 @@
 /*
- * ICE, ICE-Zupt
+ * ICE + CoreNav
  * @file test_gnss_ice.cpp
  * @brief Iterative GPS Range/Phase Estimator with collected data
  * @author Ryan Watson
@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
         // string cov_str = "covs.txt";
         // ofstream cov_os(cov_str);
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/clean_results_t11/ice_t11_w500_Fmod.xyz";
+        string out_file = "/home/navlab-shounak/Desktop/Fusion/clean_results_t11/ice_t11_w500_FmodCN.xyz";
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -113,23 +113,29 @@ int main(int argc, char* argv[])
 
         gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t11/out11sat4F.gtsam";
 
-        //--------------------------------------------------------------------
-        //read the zupt times from a file (a set?, they can use the method count())
+        //---------------------------------------------------------------------
 
-        // open file
-        ifstream inputFile("zupt_Tags_t11.txt");
-        vector<double> zupt_tags;
+        // read the ecef displacements from CoreNav
+        std::vector<std::vector<double> > ecefCN;
+        std::string line;
+        double value2;
 
-        // test file open
-        if (inputFile) {
-            double val;
+        int rowNum = 0;
 
-            // read the elements in the file into a vector
-            while ( inputFile >> val ) {
-                zupt_tags.push_back(val);
-            }
+        // read in matrix
+        std::ifstream file2("ecefGtsamt11.txt");
+        while(std::getline(file2, line)) {
+                std::vector<double> row;
+                std::istringstream iss(line);
+                while(iss >> value2){
+                        row.push_back(value2);
+                }
+                ecefCN.push_back(row);
+                rowNum = rowNum + 1;
         }
-        // close the file
+
+        cout << " Number of rows in the ecefGtsamt11.txt file -- " << rowNum << endl;
+
         //----------------------------------------------------------------------
         //outside Maria nominal ECEF values
         // xn = 856509.2570;
@@ -183,18 +189,9 @@ int main(int argc, char* argv[])
 
         nonBiasStates prior_nonBias = (gtsam::Vector(5) << 0.0, 0.0, 0.0, 0.0, 0.0).finished();
 
-        // nonBiasStates ( dx, dy, dz, trop, cb ) = 0 , zupt constraint
+        // corenav noise model
 
-        // nonBiasStates zupt_nonBias = (gtsam::Vector(5) << 0.0, 0.0, 0.0, 0.0, 0.0).finished();
-
-        // zupt noise model
-
-        noiseModel::Diagonal::shared_ptr zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-5, 1e-5, 1e-5, 1e3, 1e-3).finished());
-
-        // non-zupt noise model
-
-        noiseModel::Diagonal::shared_ptr non_zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 4.0, 4.0, 4.0, 1e3, 1e-3).finished());
-
+        noiseModel::Diagonal::shared_ptr corenavNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-2, 1e-2, 1e-2, 1e3, 1e-3).finished());
 
         phaseBias bias_state(Z_1x1);
         gnssStateVector phase_arc(Z_34x1);
@@ -290,17 +287,26 @@ int main(int argc, char* argv[])
                     int prevKey = get<1>(data[i-1]);
                     double prevgnssTime = get<0>(data[i-1]);
 
-                    for (int j = 0; j < zupt_tags.size()-1; j++){
-                        if ((std::abs(zupt_tags[j] - prevgnssTime) < 0.01) && (std::abs(zupt_tags[j+1] - gnssTime) < 0.01)){
-                            is_zupt = true;
-                            graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, zuptNoise));
-                            ++factor_count;
-                            num_zupts = num_zupts+1;
-                            cout << "Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
-                        }
-                    }
-                    if (is_zupt == false){
-                        graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, non_zuptNoise));
+                    std::vector<double> ecefcurr = ecefCN[i];
+                    std::vector<double> ecefprev = ecefCN[i-1];
+
+                    double xcurr = ecefcurr[0];
+                    double ycurr = ecefcurr[1];
+                    double zcurr = ecefcurr[2];
+
+                    double xprev = ecefprev[0];
+                    double yprev = ecefprev[1];
+                    double zprev = ecefprev[2];
+
+                    if (currKey != prevKey){
+
+                        cout << "Displacement -- "  << xcurr-xprev << "  " << ycurr-yprev << "  " << zcurr-zprev << endl;
+
+                        cout << "Time -- " << prevKey << " and " << currKey << endl;
+
+                        nonBiasStates corenav_nonBias = (gtsam::Vector(5) << xcurr-xprev, ycurr-yprev, zcurr-zprev, 0.0, 0.0).finished();
+
+                        graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), corenav_nonBias, corenavNoise));
                         ++factor_count;
                     // }
                     }
