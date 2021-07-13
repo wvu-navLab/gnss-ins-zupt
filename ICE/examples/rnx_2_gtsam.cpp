@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
         // Position nomXYZ(856295.3346, -4843033.4111, 4048017.6649);
 
         CorrectCodeBiases corrCode;
-        corrCode.setDCBFile("/home/navlab-shounak/Desktop/Fusion/t10/p1p2_12.DCB", "/home/navlab-shounak/Desktop/Fusion/t10/p1c1_12.DCB");
+        corrCode.setDCBFile("/home/navlab-shounak/Desktop/Fusion/t10/p1p2.DCB", "/home/navlab-shounak/Desktop/Fusion/t10/p1c1.DCB");
 
         if (!usingP1) {
                 corrCode.setUsingC1(true);
@@ -191,7 +191,8 @@ int main(int argc, char *argv[])
 
         // Object to keep track of satellite arcs
         SatArcMarker markArc;
-        markArc.setDeleteUnstableSats(true);
+        markArc.setDeleteUnstableSats(false);
+        // markArc.setUnstablePeriod(10.0);
 
         // Objects to compute gravitational delay effects
         GravitationalDelay grDelay(nominalPos);
@@ -296,7 +297,7 @@ int main(int argc, char *argv[])
                 // Iterate through the GNSS Data Structure
                 satTypeValueMap::const_iterator it;
                 typeValueMap::const_iterator itObs;
-                if (gRin.numSats() >= 5)
+                if (gRin.numSats() >= 4)
                 {
                         // if ( itsBelowThree > 0 )
                         // {
