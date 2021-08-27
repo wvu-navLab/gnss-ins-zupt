@@ -73,6 +73,7 @@ int main(int argc, char* argv[])
         bool skipped_update(false);
         vector<int> prn_vec;
         vector<int> factor_count_vec;
+        vector<int> between_count_vec;
         vector<rnxData> data;
         const string red("\033[0;31m");
         const string green("\033[0;32m");
@@ -93,13 +94,19 @@ int main(int argc, char* argv[])
         string res_out_str = "outliers.residuals";
         ofstream res_out_os(res_out_str);
 
+        // string res_strCN = "allCN.residuals";
+        // ofstream res_os(res_strCN);
+        //
+        // string res_out_strCN = "outliersCN.residuals";
+        // ofstream res_out_os(res_out_strCN);
+
         // string mean_str = "means.txt";
         // ofstream mean_os(mean_str);
         //
         // string cov_str = "covs.txt";
         // ofstream cov_os(cov_str);
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/clean_results_t11/ice_t11_w500_FmodCN.xyz";
+        string out_file = "/home/navlab-shounak/Desktop/Fusion/t10_noisy_results_latest/ice_t10_w500_FmodCN100p.xyz";
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -111,7 +118,7 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t11/out11sat4F.gtsam";
+        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t10/noisy100pout10sat4F.gtsam";
 
         //---------------------------------------------------------------------
 
@@ -123,7 +130,7 @@ int main(int argc, char* argv[])
         int rowNum = 0;
 
         // read in matrix
-        std::ifstream file2("ecefGtsamt11.txt");
+        std::ifstream file2("/home/navlab-shounak/Desktop/Fusion/FusionCodes/ecefGtsamt10.txt");
         while(std::getline(file2, line)) {
                 std::vector<double> row;
                 std::istringstream iss(line);
@@ -134,7 +141,7 @@ int main(int argc, char* argv[])
                 rowNum = rowNum + 1;
         }
 
-        cout << " Number of rows in the ecefGtsamt11.txt file -- " << rowNum << endl;
+        cout << " Number of rows in the ecefGtsamt10.txt file -- " << rowNum << endl;
 
         //----------------------------------------------------------------------
         //outside Maria nominal ECEF values
@@ -143,9 +150,9 @@ int main(int argc, char* argv[])
         // zn = 4047938.0419;
 
         //t9/10/11 nominal ECEF values
-        xn = 859156.4189;
-        yn = -4836305.5491;
-        zn = 4055375.2899;
+        xn = 859153.0167;
+        yn = -4836303.7245;
+        zn = 4055378.4991;
 
         // 859154.0695, -4836304.2164, 4055377.5475 - t9
         // 859153.0167, -4836303.7245, 4055378.4991 - t10
@@ -191,7 +198,7 @@ int main(int argc, char* argv[])
 
         // corenav noise model
 
-        noiseModel::Diagonal::shared_ptr corenavNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-2, 1e-2, 1e-2, 1e3, 1e-3).finished());
+        noiseModel::Diagonal::shared_ptr CnNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-2, 1e-2, 1e-2, 1e3, 1e-3).finished());
 
         phaseBias bias_state(Z_1x1);
         gnssStateVector phase_arc(Z_34x1);
@@ -224,6 +231,7 @@ int main(int argc, char* argv[])
         Eigen::MatrixXd c(2,2);
         c<< std::pow(rangeWeight,2), 0.0, 0.0, std::pow(phaseWeight,2);
         globalMixtureModel.push_back(boost::make_tuple(0, 0, 0.0, m, c));
+
 
         int lastStep = get<0>(data.back());
 
@@ -290,13 +298,41 @@ int main(int argc, char* argv[])
                     std::vector<double> ecefcurr = ecefCN[i];
                     std::vector<double> ecefprev = ecefCN[i-1];
 
-                    double xcurr = ecefcurr[0];
-                    double ycurr = ecefcurr[1];
-                    double zcurr = ecefcurr[2];
+                    double xcurr = ecefcurr[1];
+                    double ycurr = ecefcurr[2];
+                    double zcurr = ecefcurr[3];
 
-                    double xprev = ecefprev[0];
-                    double yprev = ecefprev[1];
-                    double zprev = ecefprev[2];
+                    double Pxcurr = ecefcurr[4];
+                    double Pycurr = ecefcurr[5];
+                    double Pzcurr = ecefcurr[6];
+
+                    double xprev = ecefprev[1];
+                    double yprev = ecefprev[2];
+                    double zprev = ecefprev[3];
+
+                    double Pxprev = ecefprev[4];
+                    double Pyprev = ecefprev[5];
+                    double Pzprev = ecefprev[6];
+
+                    Eigen::MatrixXd Delta_P(6,6);
+                    Delta_P << Eigen::MatrixXd::Zero(6,6);
+                    Delta_P(0,0) = Pxcurr;
+                    Delta_P(1,1) = Pycurr;
+                    Delta_P(2,2) = Pzcurr;
+                    Delta_P(3,3) = Pxprev;
+                    Delta_P(4,4) = Pyprev;
+                    Delta_P(5,5) = Pzprev;
+
+                    Eigen::MatrixXd A(3,6);
+                    A << 1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+                         0.0, 1.0, 0.0, 0.0, -1.0, 0.0,
+                         0.0, 0.0, 1.0, 0.0, 0.0, -1.0;
+
+                    Eigen::MatrixXd Noise(3,3);
+                    Noise = A*Delta_P*A.transpose();
+
+                    noiseModel::Diagonal::shared_ptr corenavNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << Noise(0,0), Noise(1,1), Noise(2,2), 1e3, 1e-3).finished());
+
 
                     if (currKey != prevKey){
 
@@ -306,8 +342,9 @@ int main(int argc, char* argv[])
 
                         nonBiasStates corenav_nonBias = (gtsam::Vector(5) << xcurr-xprev, ycurr-yprev, zcurr-zprev, 0.0, 0.0).finished();
 
-                        graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), corenav_nonBias, corenavNoise));
+                        graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), corenav_nonBias, CnNoise));
                         ++factor_count;
+                        between_count_vec.push_back(factor_count);
                     // }
                     }
                 }
@@ -343,6 +380,13 @@ int main(int argc, char* argv[])
                         gtsam::Matrix cov_min(2,2);
                         Eigen::RowVectorXd mean_min(2);
                         Eigen::VectorXd res(2);
+
+                        // Eigen::VectorXd between_res;
+                        //
+                        // for (int j = 0; j < between_count_vec.size(); j++){
+                        //     between_res = graph->at(between_count_vec[j])->residual(result);
+                        //     cout  << " Residual of between factor -- " << between_res << endl;
+                        // }
 
                         for (int j = 0; j<factor_count_vec.size(); j++)
                         {

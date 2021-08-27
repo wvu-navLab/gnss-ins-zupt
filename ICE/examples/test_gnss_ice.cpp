@@ -73,6 +73,7 @@ int main(int argc, char* argv[])
         bool skipped_update(false);
         vector<int> prn_vec;
         vector<int> factor_count_vec;
+        vector<int> between_count_vec;
         vector<rnxData> data;
         const string red("\033[0;31m");
         const string green("\033[0;32m");
@@ -93,13 +94,17 @@ int main(int argc, char* argv[])
         string res_out_str = "outliers.residuals";
         ofstream res_out_os(res_out_str);
 
+        string between_str = "between.residuals";
+        ofstream between_os(between_str);
+
+
         // string mean_str = "means.txt";
         // ofstream mean_os(mean_str);
         //
         // string cov_str = "covs.txt";
         // ofstream cov_os(cov_str);
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/clean_results_t11/ice_t11_w500_Fmod.xyz";
+        string out_file = "/home/navlab-shounak/Desktop/Fusion/t9_noisy_results_latest/ice_t9_zupt_w500_Fmod2pL.xyz";
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -111,13 +116,13 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t11/out11sat4F.gtsam";
+        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t9/noisy2pLout9sat4F.gtsam";
 
         //--------------------------------------------------------------------
         //read the zupt times from a file (a set?, they can use the method count())
 
         // open file
-        ifstream inputFile("zupt_Tags_t11.txt");
+        ifstream inputFile("/home/navlab-shounak/Desktop/Fusion/FusionCodes/zupt_Tags_t9.txt");
         vector<double> zupt_tags;
 
         // test file open
@@ -137,9 +142,10 @@ int main(int argc, char* argv[])
         // zn = 4047938.0419;
 
         //t9/10/11 nominal ECEF values
-        xn = 859156.4189;
-        yn = -4836305.5491;
-        zn = 4055375.2899;
+        xn = 859154.0695;
+        yn = -4836304.2164;
+        zn = 4055377.5475;
+
 
         // 859154.0695, -4836304.2164, 4055377.5475 - t9
         // 859153.0167, -4836303.7245, 4055378.4991 - t10
@@ -189,11 +195,11 @@ int main(int argc, char* argv[])
 
         // zupt noise model
 
-        noiseModel::Diagonal::shared_ptr zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-5, 1e-5, 1e-5, 1e3, 1e-3).finished());
+        noiseModel::Diagonal::shared_ptr zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-3, 1e-3, 1e-3, 1e3, 1e-3).finished());
 
         // non-zupt noise model
 
-        noiseModel::Diagonal::shared_ptr non_zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 4.0, 4.0, 4.0, 1e3, 1e-3).finished());
+        noiseModel::Diagonal::shared_ptr non_zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 0.5, 0.5, 0.5, 1e3, 1e-3).finished());
 
 
         phaseBias bias_state(Z_1x1);
@@ -232,12 +238,13 @@ int main(int argc, char* argv[])
 
         std::vector<int> num_obs (500, 0);
 
-        bool is_zupt = false;
+        bool is_zupt;
 
         cout << " The number of epochs in the Gtsam data file -- " << data.size() << endl;
 
         for(unsigned int i = startEpoch; i < data.size(); i++ ) {
 
+                is_zupt = false;
 
                 auto start = high_resolution_clock::now();
 
@@ -295,14 +302,16 @@ int main(int argc, char* argv[])
                             is_zupt = true;
                             graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, zuptNoise));
                             ++factor_count;
+                            between_count_vec.push_back(factor_count);
                             num_zupts = num_zupts+1;
                             cout << "Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
+                            break;
+                            // factor_count_vec.push_back(factor_count);
                         }
                     }
                     if (is_zupt == false){
                         graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, non_zuptNoise));
                         ++factor_count;
-                    // }
                     }
                 }
 
@@ -337,6 +346,13 @@ int main(int argc, char* argv[])
                         gtsam::Matrix cov_min(2,2);
                         Eigen::RowVectorXd mean_min(2);
                         Eigen::VectorXd res(2);
+
+                        // Eigen::VectorXd between_res;
+                        //
+                        // for (int j = 0; j < between_count_vec.size(); j++){
+                        //     between_res = graph->at(between_count_vec[j])->residual(result);
+                        //     cout  << " Residual of between factor -- " << between_res << endl;
+                        // }
 
                         for (int j = 0; j<factor_count_vec.size(); j++)
                         {

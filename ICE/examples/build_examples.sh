@@ -27,4 +27,4 @@ g++ test_gnss_l2CN.cpp -std=c++11 -I"$EDIR" -L"$LDIR" -Wl,-rpath="$LDIR" -I"$IDI
 # g++ test_gnss_dcs.cpp -std=c++11 -I"$EDIR" -L"$LDIR" -Wl,-rpath="$LDIR" -I"$IDIR" -ltbb -ltbbmalloc -lboost_system -lboost_program_options -lgpstk -lcluster -Wno-deprecated-declarations -lgtsam -fopenmp -o "$BDIR/test_gnss_dcs"
 
 
-g++ rnx_2_gtsam.cpp -std=c++11 -L"$LDIR" -Wl,-rpath="$LDIR" -I"$IDIR" -lboost_system -lboost_program_options -ltbb -Wno-deprecated-declarations -lgpstk -fopenmp -o "$BDIR/rnx_2_gtsam"
+#g++ rnx_2_gtsam.cpp -std=c++11 -L"$LDIR" -Wl,-rpath="$LDIR" -I"$IDIR" -lboost_system -lboost_program_options -ltbb -Wno-deprecated-declarations -lgpstk -fopenmp -o "$BDIR/rnx_2_gtsam"

@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
         vector<mixtureComponents> globalMixtureModel;
         int num_zupts = 0;
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/clean_results_t11/l2_t11_w500_FmodCN.xyz";
+        string out_file = "/home/navlab-shounak/Desktop/Fusion/t11_noisy_results_latest/l2_t11_w500_FmodCN5p.xyz";
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t11/out11sat4F.gtsam";
+        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t11/noisy5pout11sat4F.gtsam";
 
         //---------------------------------------------------------------------
         // read the ecef displacements from CoreNav
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
         int rowNum = 0;
 
         // read in matrix
-        std::ifstream file2("ecefGtsamt11.txt");
+        std::ifstream file2("/home/navlab-shounak/Desktop/Fusion/FusionCodes/ecefGtsamt11.txt");
         while(std::getline(file2, line)) {
                 std::vector<double> row;
                 std::istringstream iss(line);
@@ -117,9 +117,9 @@ int main(int argc, char* argv[])
         cout << " Number of rows in the ecefGtsamt11.txt file -- " << rowNum << endl;
         //----------------------------------------------------------------------
 
-        xn = 859154.0695;
-        yn = -4836304.2164;
-        zn = 4055377.5475;
+        xn = 859156.4189;
+        yn = -4836305.5491;
+        zn = 4055375.2899;
 
         // 859154.0695, -4836304.2164, 4055377.5475 - t9
         // 859153.0167, -4836303.7245, 4055378.4991 - t10
@@ -162,11 +162,10 @@ int main(int argc, char* argv[])
 
         nonBiasStates prior_nonBias = (gtsam::Vector(5) << 0.0, 0.0, 0.0, 0.0, 0.0).finished();
 
-        // corenav noise model
-
-        noiseModel::Diagonal::shared_ptr corenavNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-2, 1e-2, 1e-2, 1e3, 1e-3).finished());
-
         //noiseModel::Diagonal::shared_ptr non_zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 100.0, 100.0, 100.0, 1e3, 1e-3).finished());
+
+        noiseModel::Diagonal::shared_ptr CnNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-1, 1e-1, 1e-1, 1e3, 1e-3).finished());
+
 
         phaseBias bias_state(Z_1x1);
         gnssStateVector phase_arc(Z_34x1);
@@ -260,13 +259,45 @@ int main(int argc, char* argv[])
                     std::vector<double> ecefcurr = ecefCN[i];
                     std::vector<double> ecefprev = ecefCN[i-1];
 
-                    double xcurr = ecefcurr[0];
-                    double ycurr = ecefcurr[1];
-                    double zcurr = ecefcurr[2];
+                    double xcurr = ecefcurr[1];
+                    double ycurr = ecefcurr[2];
+                    double zcurr = ecefcurr[3];
 
-                    double xprev = ecefprev[0];
-                    double yprev = ecefprev[1];
-                    double zprev = ecefprev[2];
+                    double Pxcurr = ecefcurr[4];
+                    double Pycurr = ecefcurr[5];
+                    double Pzcurr = ecefcurr[6];
+
+                    double xprev = ecefprev[1];
+                    double yprev = ecefprev[2];
+                    double zprev = ecefprev[3];
+
+                    double Pxprev = ecefprev[4];
+                    double Pyprev = ecefprev[5];
+                    double Pzprev = ecefprev[6];
+
+                    Eigen::MatrixXd Delta_P(6,6);
+                    Delta_P << Eigen::MatrixXd::Zero(6,6);
+                    Delta_P(0,0) = Pxcurr;
+                    Delta_P(1,1) = Pycurr;
+                    Delta_P(2,2) = Pzcurr;
+                    Delta_P(3,3) = Pxprev;
+                    Delta_P(4,4) = Pyprev;
+                    Delta_P(5,5) = Pzprev;
+
+                    Eigen::MatrixXd A(3,6);
+                    A << 1.0, 0.0, 0.0, -1.0, 0.0, 0.0,
+                         0.0, 1.0, 0.0, 0.0, -1.0, 0.0,
+                         0.0, 0.0, 1.0, 0.0, 0.0, -1.0;
+
+                    Eigen::MatrixXd Noise(3,3);
+                    Noise = A*Delta_P*A.transpose();
+
+                    // corenav noise model
+                    // cout << "CnNoise -- " << endl <<  CnNoise << endl;
+                    //
+                    // cout << "Delta_P -- " << endl << Delta_P << endl;
+                    noiseModel::Diagonal::shared_ptr corenavNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << Noise(0,0), Noise(1,1), Noise(2,2), 1e3, 1e-3).finished());
+
 
                     if (currKey != prevKey){
 
@@ -276,7 +307,7 @@ int main(int argc, char* argv[])
 
                         nonBiasStates corenav_nonBias = (gtsam::Vector(5) << xcurr-xprev, ycurr-yprev, zcurr-zprev, 0.0, 0.0).finished();
 
-                        graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey),corenav_nonBias, corenavNoise));
+                        graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey),corenav_nonBias, CnNoise));
                         ++factor_count;
                     // }
                     }

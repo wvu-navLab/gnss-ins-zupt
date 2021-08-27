@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
         vector<mixtureComponents> globalMixtureModel;
         int num_zupts = 0;
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/clean_results_t11/l2_t11_w500_Fmod.xyz";
+        string out_file = "/home/navlab-shounak/Desktop/Fusion/t9_noisy_results_latest/l2_t9_zupt_w500_Fmod2pL.xyz";
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -92,14 +92,14 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t11/out11sat4F.gtsam";
+        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t9/noisy2pLout9sat4F.gtsam";
 
         //----------------------------------------------------------------------
 
         //read the zupt times from a file (a set?, they can use the method count())
 
         // open file
-        ifstream inputFile("zupt_Tags_t11.txt");
+        ifstream inputFile("/home/navlab-shounak/Desktop/Fusion/FusionCodes/zupt_Tags_t9.txt");
         vector<double> zupt_tags;
 
         // test file open
@@ -159,11 +159,11 @@ int main(int argc, char* argv[])
 
         // zupt noise model
 
-        noiseModel::Diagonal::shared_ptr zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-5, 1e-5, 1e-5, 1e3, 1e-3).finished());
+        noiseModel::Diagonal::shared_ptr zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-3, 1e-3, 1e-3, 1e3, 1e-3).finished());
 
         // non-zupt noise model
 
-        noiseModel::Diagonal::shared_ptr non_zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 4.0, 4.0, 4.0, 1e3, 1e-3).finished());
+        noiseModel::Diagonal::shared_ptr non_zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 0.5, 0.5, 0.5, 1e3, 1e-3).finished());
 
 
         phaseBias bias_state(Z_1x1);
@@ -201,12 +201,14 @@ int main(int argc, char* argv[])
 
         std::vector<int> num_obs (1000, 0);
 
-        bool is_zupt = false;
+        bool is_zupt;
 
         cout << " The number of epochs in the Gtsam data file -- " << data.size() << endl;
 
         for(unsigned int i = startEpoch; i < data.size(); i++ ) {
 
+
+                is_zupt = false;
 
                 auto start = high_resolution_clock::now();
 
@@ -262,6 +264,7 @@ int main(int argc, char* argv[])
                             ++factor_count;
                             num_zupts = num_zupts+1;
                             cout << " Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
+                            break;
                         }
                     }
 
