@@ -104,7 +104,7 @@ int main(int argc, char* argv[])
         // string cov_str = "covs.txt";
         // ofstream cov_os(cov_str);
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/t9_noisy_results_latest/ice_t9_zupt_w500_Fmod2pL.xyz";
+        string out_file = "/home/navlab-shounak/Desktop/Fusion/t10_noisy_results_latest/ice_t10_w500_Fmod2pL.xyz";
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -116,13 +116,13 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t9/noisy2pLout9sat4F.gtsam";
+        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t10/noisy2pLout10sat4F.gtsam";
 
         //--------------------------------------------------------------------
         //read the zupt times from a file (a set?, they can use the method count())
 
         // open file
-        ifstream inputFile("/home/navlab-shounak/Desktop/Fusion/FusionCodes/zupt_Tags_t9.txt");
+        ifstream inputFile("/home/navlab-shounak/Desktop/Fusion/FusionCodes/zupt_Tags_t10.txt");
         vector<double> zupt_tags;
 
         // test file open
@@ -141,11 +141,20 @@ int main(int argc, char* argv[])
         // yn = -4843016.7781;
         // zn = 4047938.0419;
 
-        //t9/10/11 nominal ECEF values
-        xn = 859154.0695;
-        yn = -4836304.2164;
-        zn = 4055377.5475;
+        //t9 nominal ECEF values
+        // xn = 859154.0695;
+        // yn = -4836304.2164;
+        // zn = 4055377.5475;
 
+        //t10 nominal ECEF values
+        xn = 859153.0167;
+        yn = -4836303.7245;
+        zn = 4055378.4991;
+
+        //t11 nominal ECEF values
+        // xn = 859156.4189;
+        // yn = -4836305.5491;
+        // zn = 4055375.2899;
 
         // 859154.0695, -4836304.2164, 4055377.5475 - t9
         // 859153.0167, -4836303.7245, 4055378.4991 - t10
@@ -177,7 +186,7 @@ int main(int argc, char* argv[])
         ISAM2DoglegParams doglegParams;
         ISAM2Params parameters;
         parameters.relinearizeThreshold = 0.01;
-        parameters.relinearizeSkip = 1000;
+        parameters.relinearizeSkip = 500;
         ISAM2 isam(parameters);
 
         double output_time = 0.0;
@@ -199,7 +208,7 @@ int main(int argc, char* argv[])
 
         // non-zupt noise model
 
-        noiseModel::Diagonal::shared_ptr non_zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 0.5, 0.5, 0.5, 1e3, 1e-3).finished());
+        noiseModel::Diagonal::shared_ptr non_zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1.0, 1.0, 1.0, 1e3, 1e-3).finished());
 
 
         phaseBias bias_state(Z_1x1);
@@ -293,27 +302,27 @@ int main(int argc, char* argv[])
                 //
                 // cout << " Between factor starting " << endl;
 
-                if (i != startEpoch){
-                    int prevKey = get<1>(data[i-1]);
-                    double prevgnssTime = get<0>(data[i-1]);
-
-                    for (int j = 0; j < zupt_tags.size()-1; j++){
-                        if ((std::abs(zupt_tags[j] - prevgnssTime) < 0.01) && (std::abs(zupt_tags[j+1] - gnssTime) < 0.01)){
-                            is_zupt = true;
-                            graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, zuptNoise));
-                            ++factor_count;
-                            between_count_vec.push_back(factor_count);
-                            num_zupts = num_zupts+1;
-                            cout << "Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
-                            break;
-                            // factor_count_vec.push_back(factor_count);
-                        }
-                    }
-                    if (is_zupt == false){
-                        graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, non_zuptNoise));
-                        ++factor_count;
-                    }
-                }
+                // if (i != startEpoch){
+                //     int prevKey = get<1>(data[i-1]);
+                //     double prevgnssTime = get<0>(data[i-1]);
+                //
+                //     for (int j = 0; j < zupt_tags.size()-1; j++){
+                //         if ((std::abs(zupt_tags[j] - prevgnssTime) < 0.01) && (std::abs(zupt_tags[j+1] - gnssTime) < 0.01)){
+                //             is_zupt = true;
+                //             graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, zuptNoise));
+                //             ++factor_count;
+                //             between_count_vec.push_back(factor_count);
+                //             num_zupts = num_zupts+1;
+                //             cout << "Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
+                //             break;
+                //             // factor_count_vec.push_back(factor_count);
+                //         }
+                //     }
+                //     if (is_zupt == false){
+                //         graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, non_zuptNoise));
+                //         ++factor_count;
+                //     }
+                // }
 
                 //---------------------------------------------------------------------
                 // cout << "Between factor finished adding " << endl;
@@ -389,7 +398,7 @@ int main(int argc, char* argv[])
                                 if (std::abs(z_r) > 3.0 || std::abs(z_p) > 3.0)
                                 {
                                         ++res_count;
-                                        if (res_count > 499 )
+                                        if (res_count > 999 )
                                         {
                                                 residuals.conservativeResize(residuals.rows()+1, residuals.cols());
 
