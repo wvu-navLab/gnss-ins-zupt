@@ -80,7 +80,9 @@ int main(int argc, char* argv[])
         vector<mixtureComponents> globalMixtureModel;
         int num_zupts = 0;
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/t10_clean_results_latest/l2_t10_w500_Fmod.xyz";
+        // string out_file = "/home/navlab-shounak/Desktop/Fusion/t10_clean_results_latest/l2_t10_w500_Fmod.xyz";
+        string out_file = "results/l2_t9_w500_Fmod.xyz";
+
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -92,14 +94,15 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t10/out10sat4F.gtsam";
+        gnssFile = "data/out9sat4F.gtsam";
+        // gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t10/out10sat4F.gtsam";
 
         //----------------------------------------------------------------------
 
         //read the zupt times from a file (a set?, they can use the method count())
 
         // open file
-        ifstream inputFile("/home/navlab-shounak/Desktop/Fusion/FusionCodes/zupt_Tags_t10.txt");
+        ifstream inputFile("data/zupt_Tags_t9.txt");
         vector<double> zupt_tags;
 
         // test file open
