@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
         vector<mixtureComponents> globalMixtureModel;
         int num_zupts = 0;
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/t11_noisy_results_latest/l2_t11_w500_FmodCN5p.xyz";
+        string out_file = "results/l2_t11_w500_FmodCN5p.xyz";
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -92,7 +92,7 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t11/noisy5pout11sat4F.gtsam";
+        gnssFile = "data/noisy5pout11sat4F.gtsam";
 
         //---------------------------------------------------------------------
         // read the ecef displacements from CoreNav
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
         int rowNum = 0;
 
         // read in matrix
-        std::ifstream file2("/home/navlab-shounak/Desktop/Fusion/FusionCodes/ecefGtsamt11.txt");
+        std::ifstream file2("data/ecefGtsamt11.txt");
         while(std::getline(file2, line)) {
                 std::vector<double> row;
                 std::istringstream iss(line);
