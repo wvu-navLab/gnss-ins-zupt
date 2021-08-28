@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
         vector<mixtureComponents> globalMixtureModel;
         int num_zupts = 0;
 
-        string out_file = "/home/navlab-shounak/Desktop/Fusion/t9_noisy_results_latest/l2_t9_zupt_w500_Fmod2pL.xyz";
+        string out_file = "/home/navlab-shounak/Desktop/Fusion/t10_clean_results_latest/l2_t10_w500_Fmod.xyz";
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -92,14 +92,14 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t9/noisy2pLout9sat4F.gtsam";
+        gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t10/out10sat4F.gtsam";
 
         //----------------------------------------------------------------------
 
         //read the zupt times from a file (a set?, they can use the method count())
 
         // open file
-        ifstream inputFile("/home/navlab-shounak/Desktop/Fusion/FusionCodes/zupt_Tags_t9.txt");
+        ifstream inputFile("/home/navlab-shounak/Desktop/Fusion/FusionCodes/zupt_Tags_t10.txt");
         vector<double> zupt_tags;
 
         // test file open
@@ -113,14 +113,14 @@ int main(int argc, char* argv[])
         }
 
         //t9 nominal ECEF values
-        xn = 859154.0695;
-        yn = -4836304.2164;
-        zn = 4055377.5475;
+        // xn = 859154.0695;
+        // yn = -4836304.2164;
+        // zn = 4055377.5475;
 
         //t10 nominal ECEF values
-        // xn = 859153.0167;
-        // yn = -4836303.7245;
-        // zn = 4055378.4991;
+        xn = 859153.0167;
+        yn = -4836303.7245;
+        zn = 4055378.4991;
 
         //t11 nominal ECEF values
         // xn = 859156.4189;
@@ -264,26 +264,26 @@ int main(int argc, char* argv[])
                 //---------------------------------------------------------------------
                 // add between factor here
                 //
-                if (i != startEpoch){
-                    int prevKey = get<1>(data[i-1]);
-                    double prevgnssTime = get<0>(data[i-1]);
-
-                    for (int j = 0; j < zupt_tags.size()-1; j++){
-                        if ((std::abs(zupt_tags[j] - prevgnssTime) < 0.01) && (std::abs(zupt_tags[j+1] - gnssTime) < 0.01)){
-                            is_zupt = true;
-                            graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, zuptNoise));
-                            ++factor_count;
-                            num_zupts = num_zupts+1;
-                            cout << " Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
-                            break;
-                        }
-                    }
-
-                    if(is_zupt == false){
-                        graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey),between_nonBias_State, non_zuptNoise));
-                        ++factor_count;
-                    }
-                }
+                // if (i != startEpoch){
+                //     int prevKey = get<1>(data[i-1]);
+                //     double prevgnssTime = get<0>(data[i-1]);
+                //
+                //     for (int j = 0; j < zupt_tags.size()-1; j++){
+                //         if ((std::abs(zupt_tags[j] - prevgnssTime) < 0.01) && (std::abs(zupt_tags[j+1] - gnssTime) < 0.01)){
+                //             is_zupt = true;
+                //             graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey), between_nonBias_State, zuptNoise));
+                //             ++factor_count;
+                //             num_zupts = num_zupts+1;
+                //             cout << " Zupt applied -- " << num_zupts <<  " between times " << prevgnssTime << " <--> " << gnssTime <<  endl;
+                //             break;
+                //         }
+                //     }
+                //
+                //     if(is_zupt == false){
+                //         graph->add(BetweenFactor<nonBiasStates>(X(currKey),X(prevKey),between_nonBias_State, non_zuptNoise));
+                //         ++factor_count;
+                //     }
+                // }
 
                 //---------------------------------------------------------------------
 

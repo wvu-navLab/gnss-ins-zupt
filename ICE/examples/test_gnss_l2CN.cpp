@@ -117,9 +117,20 @@ int main(int argc, char* argv[])
         cout << " Number of rows in the ecefGtsamt11.txt file -- " << rowNum << endl;
         //----------------------------------------------------------------------
 
-        xn = 859156.4189;
-        yn = -4836305.5491;
-        zn = 4055375.2899;
+        //t9 nominal ECEF values
+        // xn = 859154.0695;
+        // yn = -4836304.2164;
+        // zn = 4055377.5475;
+
+        //t10 nominal ECEF values
+        xn = 859153.0167;
+        yn = -4836303.7245;
+        zn = 4055378.4991;
+
+        //t11 nominal ECEF values
+        // xn = 859156.4189;
+        // yn = -4836305.5491;
+        // zn = 4055375.2899;
 
         // 859154.0695, -4836304.2164, 4055377.5475 - t9
         // 859153.0167, -4836303.7245, 4055378.4991 - t10
@@ -164,7 +175,7 @@ int main(int argc, char* argv[])
 
         //noiseModel::Diagonal::shared_ptr non_zuptNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 100.0, 100.0, 100.0, 1e3, 1e-3).finished());
 
-        noiseModel::Diagonal::shared_ptr CnNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-1, 1e-1, 1e-1, 1e3, 1e-3).finished());
+        noiseModel::Diagonal::shared_ptr CnNoise = noiseModel::Diagonal::Variances((gtsam::Vector(5) << 1e-2, 1e-2, 1e-2, 1e3, 1e-3).finished());
 
 
         phaseBias bias_state(Z_1x1);
