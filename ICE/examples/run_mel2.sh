@@ -29,7 +29,7 @@ DDIR="$DIR/data"
 
 
 ## Run all of the estimators
-echo "Running ICE/L2/maxmix/DCS .. "
+echo "Running L2 "
 # "$BDIR/test_gnss_ice"
 # | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/ice_zupt.xyz"
 

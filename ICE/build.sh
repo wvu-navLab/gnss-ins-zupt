@@ -12,7 +12,7 @@ NCORES="$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)"
 # fi
 
 
-# Setup Eigen
+# # Setup Eigen
 # if [ -d "$DIR/3rdparty/Eigen/build" ]
 # then
 #   rm -rf "$DIR/3rdparty/Eigen/build"

@@ -29,7 +29,7 @@ DDIR="$DIR/data"
 
 
 ## Run all of the estimators
-echo "Running L2_CN "
+echo "Running L2_zupt .. "
 # "$BDIR/test_gnss_ice"
 # | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/ice_zupt.xyz"
 
@@ -41,7 +41,7 @@ echo "Running L2_CN "
 # "$BDIR/test_gnss_dcs" -c curr_run.conf | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/dcs.xyz"
 #
 # echo "Running L2"
-"$BDIR/test_gnss_l2CN"
+"$BDIR/test_gnss_l2_zupt"
 # | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/l2.xyz"
 
 
