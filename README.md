@@ -7,5 +7,5 @@ This work presents GNSS/WO/INS fusion strategies with a factor graph by exploiti
 
 
 <p align="center">
-<img alt="Architecture" src="doc/factorgraph_zuptL2.PNG" width="600">
+<img alt="Architecture" src="doc/factorgraph_zuptL2.PNG" width="1200">
 </p>
