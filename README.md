@@ -1,6 +1,6 @@
-## corenav-fusion
+## GNSS-INS-ZUPT
 
-This repository contains the software release for "ZUPT aided GNSS Factor Graph with InertialNavigation Integration for Wheeled Robots".
+This repository contains the software release for "ZUPT aided GNSS Factor Graph with Inertial Navigation Integration for Wheeled Robots".
 
 <br/>
 <br/>
