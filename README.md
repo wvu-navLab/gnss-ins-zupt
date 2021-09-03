@@ -74,7 +74,14 @@ chmod +x run_mel2.sh
 ./run_mel2.sh
 ````
 
+### Note
+If you see an error as 
 
+````  error while loading shared libraries: libmetis.so: cannot open shared object file: No such file or directory ```` 
+
+Simply, paste this command to your bashrc:
+
+```` export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/*FULL_PATH_OF_REPO*/gnss-ins-zupt/GNSS_INS_ZUPT/lib ```` 
 
 <p align="center">
 <img alt="Architecture" src="doc/factorgraph_zuptL2.PNG" width="1200">
