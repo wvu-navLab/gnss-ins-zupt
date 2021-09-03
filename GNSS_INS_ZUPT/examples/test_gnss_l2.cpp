@@ -1,8 +1,7 @@
 /*
  * L2, L2-Zupt
  * @file test_gnss_l2.cpp
- * @brief Iterative GPS Range/Phase Estimator with collected data
- * @author Ryan Watson
+ * @authors Ryan Watson, Shounak Das, Cagri Kilic
  */
 
 // GTSAM related includes.
