@@ -13,16 +13,16 @@ NCORES="$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)"
 
 
 # # Setup Eigen
-# if [ -d "$DIR/3rdparty/Eigen/build" ]
-# then
-#   rm -rf "$DIR/3rdparty/Eigen/build"
-# fi
-# mkdir "$DIR/3rdparty/Eigen/build"
-# cd "$DIR/3rdparty/Eigen/build"
-# cmake -DCMAKE_INSTALL_PREFIX:PATH="$DIR" ../
-# make install -s -j $NCORES
+if [ -d "$DIR/3rdparty/Eigen/build" ]
+then
+  rm -rf "$DIR/3rdparty/Eigen/build"
+fi
+mkdir "$DIR/3rdparty/Eigen/build"
+cd "$DIR/3rdparty/Eigen/build"
+cmake -DCMAKE_INSTALL_PREFIX:PATH="$DIR" ../
+make install -s -j $NCORES
 #
-# ln -s "$DIR/include/eigen3" "$DIR/include/Eigen"
+ln -s "$DIR/include/eigen3" "$DIR/include/Eigen"
 #
 #
 # # Setup LibCluster
@@ -39,25 +39,25 @@ NCORES="$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)"
 # #
 # #
 # # Setup GTSAM
-# if [ -d "$DIR/3rdparty/RobustGNSS/gtsam/build" ]
-# then
-#   rm -rf "$DIR/3rdparty/RobustGNSS/gtsam/build"
-# fi
-# mkdir "$DIR/3rdparty/RobustGNSS/gtsam/build"
-# cd "$DIR/3rdparty/RobustGNSS/gtsam/build"
-# cmake -DGTSAM_USE_SYSTEM_EIGEN="ON" -DGTSAM_EIGEN_INCLUDE_PREFIX="$DIR/include/Eigen/" -DCMAKE_INSTALL_PREFIX="$DIR" ..
-# make -s -j $NCORES
-# make install
+if [ -d "$DIR/3rdparty/RobustGNSS/gtsam/build" ]
+then
+  rm -rf "$DIR/3rdparty/RobustGNSS/gtsam/build"
+fi
+mkdir "$DIR/3rdparty/RobustGNSS/gtsam/build"
+cd "$DIR/3rdparty/RobustGNSS/gtsam/build"
+cmake -DGTSAM_USE_SYSTEM_EIGEN="ON" -DGTSAM_EIGEN_INCLUDE_PREFIX="$DIR/include/Eigen/" -DCMAKE_INSTALL_PREFIX="$DIR" ..
+make -s -j $NCORES
+make install
 #
 #
 # # Setup GPSTk
-# if [ -d "$DIR/3rdparty/GPSTk/build" ]
-# then
-#   rm -rf "$DIR/3rdparty/GPSTk/build"
-# fi
-# # mkdir "$DIR/3rdparty/GPSTk/build"
-# cd "$DIR/3rdparty/GPSTk"
-# ./build.sh -c -x -e -i "$DIR"
+if [ -d "$DIR/3rdparty/GPSTk/build" ]
+then
+  rm -rf "$DIR/3rdparty/GPSTk/build"
+fi
+# mkdir "$DIR/3rdparty/GPSTk/build"
+cd "$DIR/3rdparty/GPSTk"
+./build.sh -c -x -e -i "$DIR"
 
 
 # Setup Examples
