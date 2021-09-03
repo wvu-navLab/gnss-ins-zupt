@@ -1,4 +1,4 @@
-# Robust Incremental State Estimation through Covariance Adaptation
+# Description
 
 ## Overview
 
