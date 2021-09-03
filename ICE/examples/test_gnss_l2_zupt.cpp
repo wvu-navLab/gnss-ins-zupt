@@ -81,7 +81,27 @@ int main(int argc, char* argv[])
         int num_zupts = 0;
 
         // string out_file = "/home/navlab-shounak/Desktop/Fusion/t10_clean_results_latest/l2_t10_w500_Fmod.xyz";
-        string out_file = "results/l2_t9_w500_Fmod.xyz";
+        string out_file = "results/l2_t11_zupt.xyz";
+        gnssFile = "data/out11sat4F.gtsam";
+        ifstream inputFile("data/zupt_Tags_t11.txt");
+        //t9 nominal ECEF values
+        // xn = 859154.0695;
+        // yn = -4836304.2164;
+        // zn = 4055377.5475;
+
+        //t10 nominal ECEF values
+        // xn = 859153.0167;
+        // yn = -4836303.7245;
+        // zn = 4055378.4991;
+
+        // t11 nominal ECEF values
+        xn = 859156.4189;
+        yn = -4836305.5491;
+        zn = 4055375.2899;
+
+        // 859154.0695, -4836304.2164, 4055377.5475 - t9
+        // 859153.0167, -4836303.7245, 4055378.4991 - t10
+        // 859156.4189, -4836305.5491, 4055375.2899 - t11
 
         ofstream out_os(out_file);
 
@@ -94,7 +114,7 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "data/out9sat4F.gtsam";
+
         // gnssFile = "/home/navlab-shounak/Desktop/Fusion/gtsam_data_t10/out10sat4F.gtsam";
 
         //----------------------------------------------------------------------
@@ -102,7 +122,7 @@ int main(int argc, char* argv[])
         //read the zupt times from a file (a set?, they can use the method count())
 
         // open file
-        ifstream inputFile("data/zupt_Tags_t9.txt");
+
         vector<double> zupt_tags;
 
         // test file open
@@ -115,24 +135,7 @@ int main(int argc, char* argv[])
             }
         }
 
-        //t9 nominal ECEF values
-        // xn = 859154.0695;
-        // yn = -4836304.2164;
-        // zn = 4055377.5475;
 
-        //t10 nominal ECEF values
-        xn = 859153.0167;
-        yn = -4836303.7245;
-        zn = 4055378.4991;
-
-        //t11 nominal ECEF values
-        // xn = 859156.4189;
-        // yn = -4836305.5491;
-        // zn = 4055375.2899;
-
-        // 859154.0695, -4836304.2164, 4055377.5475 - t9
-        // 859153.0167, -4836303.7245, 4055378.4991 - t10
-        // 859156.4189, -4836305.5491, 4055375.2899 - t11
 
         printENU = false;
         printAmb = false;

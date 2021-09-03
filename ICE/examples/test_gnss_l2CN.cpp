@@ -80,7 +80,29 @@ int main(int argc, char* argv[])
         vector<mixtureComponents> globalMixtureModel;
         int num_zupts = 0;
 
-        string out_file = "results/l2_t11_w500_FmodCN5p.xyz";
+        string out_file = "results/l2_t11_CN.xyz";
+        gnssFile = "data/out11sat4F.gtsam";
+        std::ifstream file2("data/ecefGtsamt11.txt");
+        //t9 nominal ECEF values
+        // xn = 859154.0695;
+        // yn = -4836304.2164;
+        // zn = 4055377.5475;
+
+        //t10 nominal ECEF values
+        // xn = 859153.0167;
+        // yn = -4836303.7245;
+        // zn = 4055378.4991;
+
+        // t11 nominal ECEF values
+        xn = 859156.4189;
+        yn = -4836305.5491;
+        zn = 4055375.2899;
+
+        // 859154.0695, -4836304.2164, 4055377.5475 - t9
+        // 859153.0167, -4836303.7245, 4055378.4991 - t10
+        // 859156.4189, -4836305.5491, 4055375.2899 - t11
+
+
         ofstream out_os(out_file);
 
         cout.precision(12);
@@ -92,7 +114,7 @@ int main(int argc, char* argv[])
         po::store(po::command_line_parser(argc, argv).options(desc).run(), vm);
         po::notify(vm);
 
-        gnssFile = "data/noisy5pout11sat4F.gtsam";
+
 
         //---------------------------------------------------------------------
         // read the ecef displacements from CoreNav
@@ -103,7 +125,7 @@ int main(int argc, char* argv[])
         int rowNum = 0;
 
         // read in matrix
-        std::ifstream file2("data/ecefGtsamt11.txt");
+
         while(std::getline(file2, line)) {
                 std::vector<double> row;
                 std::istringstream iss(line);
@@ -114,27 +136,9 @@ int main(int argc, char* argv[])
                 rowNum = rowNum + 1;
         }
 
-        cout << " Number of rows in the ecefGtsamt11.txt file -- " << rowNum << endl;
+        cout << " Number of rows in the ecefGtsamt9.txt file -- " << rowNum << endl;
         //----------------------------------------------------------------------
 
-        //t9 nominal ECEF values
-        // xn = 859154.0695;
-        // yn = -4836304.2164;
-        // zn = 4055377.5475;
-
-        //t10 nominal ECEF values
-        xn = 859153.0167;
-        yn = -4836303.7245;
-        zn = 4055378.4991;
-
-        //t11 nominal ECEF values
-        // xn = 859156.4189;
-        // yn = -4836305.5491;
-        // zn = 4055375.2899;
-
-        // 859154.0695, -4836304.2164, 4055377.5475 - t9
-        // 859153.0167, -4836303.7245, 4055378.4991 - t10
-        // 859156.4189, -4836305.5491, 4055375.2899 - t11
 
         printENU = false;
         printAmb = false;

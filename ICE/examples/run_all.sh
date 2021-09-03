@@ -29,6 +29,21 @@ DDIR="$DIR/data"
 
 
 ## Run all of the estimators
+echo "Running L2 "
+# "$BDIR/test_gnss_ice"
+# | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/ice_zupt.xyz"
+
+# -c curr_run.conf
+# echo "Running MM"
+# "$BDIR/test_gnss_maxmix" -c curr_run.conf | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/mm.xyz"
+#
+# echo "Running DCS"
+# "$BDIR/test_gnss_dcs" -c curr_run.conf | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/dcs.xyz"
+#
+# echo "Running L2"
+"$BDIR/test_gnss_l2"
+# | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/l2.xyz"
+
 echo "Running L2_zupt .. "
 # "$BDIR/test_gnss_ice"
 # | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/ice_zupt.xyz"
@@ -42,9 +57,20 @@ echo "Running L2_zupt .. "
 #
 # echo "Running L2"
 "$BDIR/test_gnss_l2_zupt"
-# | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/l2.xyz"
 
+echo "Running L2_CN "
+# "$BDIR/test_gnss_ice"
+# | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/ice_zupt.xyz"
 
+# -c curr_run.conf
+# echo "Running MM"
+# "$BDIR/test_gnss_maxmix" -c curr_run.conf | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/mm.xyz"
+#
+# echo "Running DCS"
+# "$BDIR/test_gnss_dcs" -c curr_run.conf | grep "xyz" | awk '{print $2 " " $3 " " $4 " " $5}' > "$TDIR/dcs.xyz"
+#
+# echo "Running L2"
+"$BDIR/test_gnss_l2CN"
 ## Get the stats. for the runs. NOTE: this requires that you have matlab installed
 # export MATLABPATH="$DDIR/truth":"$CURRDIR/make_plots":"$CURRDIR/make_plots/utils"
 #
