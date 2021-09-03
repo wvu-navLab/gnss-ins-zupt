@@ -5,13 +5,6 @@ mkdir -p "$DIR/bin" "$DIR/include" "$DIR/share" "$DIR/test"
 
 NCORES="$(cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l)"
 
-# Get data
-# if [ ! -d "$DIR/data" ]
-# then
-#   git clone https://github.com/wvu-navLab/GnssData.git "$DIR/data"
-# fi
-
-
 # # Setup Eigen
 if [ -d "$DIR/3rdparty/Eigen/build" ]
 then
@@ -26,15 +19,15 @@ ln -s "$DIR/include/eigen3" "$DIR/include/Eigen"
 #
 #
 # # Setup LibCluster
-# if [ -d "$DIR/3rdparty/LibCluster/build" ]
-# then
-#   rm -rf "$DIR/3rdparty/LibCluster/build"
-# fi
-# mkdir "$DIR/3rdparty/LibCluster/build"
-# cd "$DIR/3rdparty/LibCluster/build"
-# cmake -DCMAKE_INSTALL_PREFIX="$DIR/" -DEIGEN_INCLUDE_DIRS="$DIR/include/Eigen/" ..
-# make -s -j $NCORES
-# make install
+if [ -d "$DIR/3rdparty/LibCluster/build" ]
+then
+  rm -rf "$DIR/3rdparty/LibCluster/build"
+fi
+mkdir "$DIR/3rdparty/LibCluster/build"
+cd "$DIR/3rdparty/LibCluster/build"
+cmake -DCMAKE_INSTALL_PREFIX="$DIR/" -DEIGEN_INCLUDE_DIRS="$DIR/include/Eigen/" ..
+make -s -j $NCORES
+make install
 #
 # #
 # #
