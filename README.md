@@ -4,7 +4,16 @@ This repository contains the software release for "ZUPT aided GNSS Factor Graph 
 
 <br/>
 
-> In this work, we demonstrate the importance of zero velocity information for GNSS based navigation. The effectiveness of using the zero velocity information with ZUPT for inertial navigation applications have been shown in the literature. Here we leverage this information and add it as a position constraint in a GNSS factor graph. We also compare its performance to a GNSS/INS coupled factor graph. We tested our ZUPT aided factor graph method on three datasets and compared it with the GNSS-only factor graph.
+> In this work, we demonstrate the importance of zero velocity information for GNSS based navigation. The effectiveness of using the zero velocity information with ZUPT for inertial navigation applications have been shown in the literature. Here we leverage this information and add it as a position constraint in a GNSS factor graph. We also compare its performance to a GNSS/INS coupled factor graph. We tested our ZUPT aided factor graph method on three datasets and compared it with the GNSS-only factor graph. 
+```bibtex
+@inproceedings{kilic2021zupt,
+  title={ZUPT Aided GNSS Factor Graph with Inertial Navigation Integration for Wheeled Robots},
+  author={Kilic, Cagri and Das, Shounak and Gutierrez, Eduardo and Watson, Ryan and Gross, Jason},
+  booktitle={Proceedings of the 34th International Technical Meeting of the Satellite Division of The Institute of Navigation (ION GNSS+ 2021)},
+  pages={3285--3293},
+  year={2021}
+}
+```
 
 
 <p align="center">
